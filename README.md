@@ -112,22 +112,66 @@ https://downloads.chef.io/chef-dk/
 
 以下のコマンドでChef-DKがインストールされていることを確認してください。
 
-
 ```
 %chef -v
 Chef Development Kit Version: 0.3.6
+oストOS側でのChef-zero serverの起動およびゲストOSへのChefのインストールがうまくいくか
+oストOS側でのChef-zero serverの起動およびゲストOSへのChefのインストールがうまくいくか
 ```
 
 # Chefの実行に必要なVagrantプラグインのインストール
 
-Chefを使ってゲストOSの設定を行う場合、以下のような動作をします。これらはVagrantによって実行されるため、ユーザは特に意識する必要がありません。
+VagrantとChefを使ってゲストOSの設定を行う場合、以下のような流れでゲストOSの設定が行われます。これらはVagrantによって自動的に実行されるため、ユーザは特に意識する必要がありません。
 
 - ホスト側でChef-zero serverという簡易的なサーバを立ち上げ、クックブックをサーバにアップロードする
 - ゲスト側にChef-clientがインストールされる
 - ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
 
-まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグインをインストールします。
+まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
 
+```
+% vagrant plugin install vagrant-chef-zero
+```
+
+次にゲストOSにChefをインストールするために必要なVagrantプラグイン vagrant-omnibus をインストールします。
+
+```
+% vagrant plugin install vagrant-omnibus
+```
+
+両プラグインを利用する設定を Vagrantfile に追記します。
+以下の設定ファイルでは以下を指示しています。
+- ゲストOSに最新のChefをインストールする
+- Chef-zero のリポジトリとしてカレントディレクトリを設定する。
+
+Vagrant.configure(2) do |config|
+  config.omnibus.chef_version=:latest
+  config.chef_zero.chef_repo_path = "."
+   
+  config.vm.box = "centos7"
+  config.vm.box_url = "https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box"
+end
+
+
+
+```
+% vagrant provision
+```
+
+今回、クックブックは可能な限り、コミュニティで開発されたものを再利用します。コミュニティで共有されているクックブックを取得するためのツールとして Berkshelf があります。この Berkshelf を Vagant から呼び出すために必要なvagrantプラグイン vagrant-berkshelf をインストールします。
+
+```
+% vagrant plugin install vagrant-berkshelf
+```
+
+
+Vagrant.configure(2) do |config|
+  config.omnibus.chef_version=:latest
+  config.chef_zero.chef_repo_path = "."
+
+  config.vm.box = "centos7"
+  config.vm.box_url = "https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box" 
+end
 
 # Install Play with a cookbook from the Chef Supermarket
 
