@@ -1,7 +1,0 @@
-DEPENDENCIES
-  deploy-play
-
-GRAPH
-  deploy-play (1.0.0)
-    java (>= 1.6)
-  java (1.29.0)

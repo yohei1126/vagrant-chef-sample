@@ -8,8 +8,10 @@ http://www.vagrantup.com/downloads
 インストールしたら以下のコマンドでVagarantが実行できることを確認してください。
 本記事執筆時点でVagrantの最新バージョンは1.7.2です。
 
+```
 % vagrant --version                                                                                                                     (git)-[mastVagrant 1.7.2
- 
+```
+
 #Vagrantfileの作成
 Vagarntを実行する際にはVagrantfileという設定ファイルでVagrantの実行方法を指定します。Vagrantfileのひな形は以下のコマンドで作成できます。
 
