@@ -1,12 +1,11 @@
 # vagrant-chef-sample
 本チュートリアルはVagrantとChefを使って、VM上のCentOS 7にPlay FrameworkとPostgreSQLを使ったアプリケーション環境を構築する方法を紹介します。
 
-# vagrantのインストール
+# Vagrantのインストール
 最初にVagrantでCentOSがインストールされたVMを立ち上げてみます。以下のURLからVagrantのインストーラをダウンロードし、インストールを行って下さい。
 http://www.vagrantup.com/downloads
 
-インストールしたら以下のコマンドでVagarantが実行できることを確認してください。
-本記事執筆時点でVagrantの最新バージョンは1.7.2です。
+インストールしたら以下のコマンドでVagarantが実行できることを確認してください。本記事執筆時点でVagrantの最新バージョンは1.7.2です。
 
 ```
 % vagrant --version
@@ -63,7 +62,6 @@ $ vagrant up
 
 うまく起動できたら、SSHでゲストOSに接続できることも確認します。
 
-
 ```
 $ vagrant ssh
 
@@ -71,31 +69,31 @@ $ vagrant ssh
 
 その他にもよく使うコマンドとして以下があります。
 
-Vagarntの実行状況を確認する。
+- Vagarntの実行状況を確認する。
 
 ```
 %vagrant status
 ```
 
-仮想マシンを停止する。
+- 仮想マシンを停止する。
 
 ```
 % vagrant halt
 ```
 
-仮想マシンを一時停止する。
+- 仮想マシンを一時停止する。
 
 ```
 % vagrant suspend
 ```
 
-仮想マシンを再開する。
+- 仮想マシンを再開する。
 
 ```
 % vagrant resume
 ```
 
-仮想マシンを破壊する。※仮想マシンを作り直したい時に使用する。
+- 仮想マシンを破壊する。※仮想マシンを作り直したい時に使用する。
 
 ```
 % vagrant destroy
@@ -115,8 +113,6 @@ https://downloads.chef.io/chef-dk/
 ```
 %chef -v
 Chef Development Kit Version: 0.3.6
-oストOS側でのChef-zero serverの起動およびゲストOSへのChefのインストールがうまくいくか
-oストOS側でのChef-zero serverの起動およびゲストOSへのChefのインストールがうまくいくか
 ```
 
 # Chefの実行に必要なVagrantプラグインのインストール
