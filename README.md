@@ -9,24 +9,30 @@ http://www.vagrantup.com/downloads
 本記事執筆時点でVagrantの最新バージョンは1.7.2です。
 
 ```
-% vagrant --version                                                                                                                     (git)-[mastVagrant 1.7.2
+% vagrant --version
+Vagrant 1.7.2
 ```
 
 #Vagrantfileの作成
 Vagarntを実行する際にはVagrantfileという設定ファイルでVagrantの実行方法を指定します。Vagrantfileのひな形は以下のコマンドで作成できます。
 
+```
 $ vagrant init
+```
 
 Vagrantは0から仮想マシンをインストールしません。そのかわりに仮想マシンのベースイメージを使用することで、起動時間を早くします。このベースイメージのことをBoxといいます。Boxは自分で作成する必要はありません。Vagrantbox.esというWebサイトで有志が作成したBoxが提供されています。
 http://www.vagrantbox.es/
 
 ここではVagrantbox.esに掲載されているCentOS 7のBoxのうち、「CentOS7.0 x86_64 minimal (VirtualBoxGuestAddtions 4.3.14)」を利用します。
 
+```
 $vim Vagrantfile
+
  Vagrant.configure(2) do |config|
    config.vm.box = "centos7"
    config.vm.box_url="https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box"
  end
+```
 
 config.vm.boxが自分のboxの名前、config.vm.box_urlとしてCentOS 7のBoxのURLを指定します。ローカルのBox置き場に"centos7"というBoxが存在する場合、ローカルのBoxを使います。存在しない場合、指定したURLからBoxをダウンロードし、ローカルに配置します。
 
