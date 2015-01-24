@@ -49,7 +49,7 @@ http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
 $vagrant plugin install vagrant-vbguest
 ```
 
-それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。。
+それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。また、本記事執筆時点では、
 
 ```
 $ vagrant up
@@ -107,6 +107,12 @@ $ vagrant ssh
 https://downloads.chef.io/chef-dk/
 
 （注意）ホスト側ではChefは実行されませんが、ゲストOSにChefで環境設定するために必要なツール群がChef-DKでインストールされます。
+
+なお、ChefはChef-DKと一緒にインストールされるRubyで実行されことが推奨されています。PATH上に別のRubyがあるとトラブルが発生するため、以下のコマンドでChef-DKのRubyを使うように指定して下さい。
+
+ eval "$(chef shell-init SHELL_NAME)"
+
+（注意）SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてください。
 
 以下のコマンドでChef-DKがインストールされていることを確認してください。
 
