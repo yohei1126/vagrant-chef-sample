@@ -1,0 +1,7 @@
+name             'postgresql_config'
+maintainer       'Yohei Onishi'
+maintainer_email 'yohei@example.co.jp'
+license          'Yohei Onishi All rights reserved'
+description      'Configures postgres'
+long_description 'Configures postgres'
+version          '0.1.0'

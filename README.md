@@ -1,15 +1,17 @@
 # vagrant-chef-sample
-本チュートリアルはVagrantとChefを使って、VM上のCentOS 7にPlay FrameworkとPostgreSQLを使ったアプリケーション環境を構築する方法を紹介します。
+本チュートリアルはVagrantとChefを使って、VM上のCentOS 7に Play Framework と PostgreSQL を使ったアプリケーション環境を構築する方法を紹介します。
 
 # Vagrantのインストール
-最初にVagrantでCentOSがインストールされたVMを立ち上げてみます。以下のURLからVagrantのインストーラをダウンロードし、インストールを行って下さい。
+最初にVagrantでCentOSがインストールされたVMを立ち上げてみます。以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
 http://www.vagrantup.com/downloads
 
-インストールしたら以下のコマンドでVagarantが実行できることを確認してください。本記事執筆時点でVagrantの最新バージョンは1.7.2です。
+※本記事執筆時点での最新バージョンは1.7.2ですが、動作確認ができたバージョンをここでは使います。
+
+インストールしたら以下のコマンドでVagarantが実行できることを確認してください。
 
 ```
 % vagrant --version
-Vagrant 1.7.2
+Vagrant 1.6.5
 ```
 
 #Vagrantfileの作成
@@ -38,8 +40,7 @@ config.vm.boxに自分のboxの名前としてboxの内容が分かるような�
 
 #仮想マシンの起動
 
-この時点で仮想マシンが起動できるか確かめてみましょう。
-なお、今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
+この時点で仮想マシンが起動できるか確かめてみましょう。なお、今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
 
 http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
 
@@ -49,7 +50,7 @@ http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
 $vagrant plugin install vagrant-vbguest
 ```
 
-それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。また、本記事執筆時点では、
+それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。
 
 ```
 $ vagrant up
@@ -93,7 +94,7 @@ $ vagrant ssh
 % vagrant resume
 ```
 
-- 仮想マシンを破壊する。※仮想マシンを作り直したい時に使用する。
+- 仮想マシンを終了する。※仮想マシンを作り直したい時に使用する。
 
 ```
 % vagrant destroy
@@ -102,11 +103,13 @@ $ vagrant ssh
 # Chefのインストール
 仮想マシンの起動まで確認できたため、次にChefを使ってPlay frameworkとPostgreSQLのインストールを行います。
 
-まずChefの開発に必要なひと通りの開発環境がパッケージされたChef-DKをダウンロードして、インストールしてください。以下のURLからインストーラをダウンロードできます。画面中央にあるOSのアイコンをクリックし、OSにあったインストーラのダウンロードページを開く必要があります。
+まずChefの開発に必要なひと通りの開発環境がパッケージされたChef-DKi(バージョン0.3.5)をダウンロードして、インストールしてください。以下のURLからインストーラをダウンロードできます。画面中央にあるOSのアイコンをクリックし、OSにあったインストーラのダウンロードページを開く必要があります。
 
 https://downloads.chef.io/chef-dk/
 
-（注意）ホスト側ではChefは実行されませんが、ゲストOSにChefで環境設定するために必要なツール群がChef-DKでインストールされます。
+（注意）
+- 本記事執筆時点での最新バージョンは0.3.5ですが、動作確認がとれたバージョンを使用しています。
+- ホスト側ではChefは実行されませんが、ゲストOSにChefで環境設定するために必要なツール群がChef-DKでインストールされます。
 
 なお、ChefはChef-DKと一緒にインストールされるRubyで実行されことが推奨されています。PATH上に別のRubyがあるとトラブルが発生するため、以下のコマンドでChef-DKのRubyを使うように指定して下さい。
 
@@ -114,13 +117,14 @@ https://downloads.chef.io/chef-dk/
  eval "$(chef shell-init SHELL_NAME)"
 ```
 
-（注意）SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてください。
+（注意）
+- SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてください。
 
 以下のコマンドでChef-DKがインストールされていることを確認してください。
 
 ```
 %chef -v
-Chef Development Kit Version: 0.3.6
+Chef Development Kit Version: 0.3.5
 ```
 
 # Chefの実行に必要なVagrantプラグインのインストール
@@ -143,8 +147,7 @@ VagrantとChefを使ってゲストOSの設定を行う場合、以下のよう�
 % vagrant plugin install vagrant-omnibus
 ```
 
-両プラグインを利用する設定を Vagrantfile に追記します。
-以下の設定ファイルでは以下を指示しています。
+両プラグインを利用する設定を Vagrantfile に追記します。以下の設定ファイルでは以下を指示しています。
 - ゲストOSに最新のChefをインストールする
 - Chef-zero のリポジトリとしてカレントディレクトリを設定する。
 - プロビジョン（各種設定を行うツール）としてChef-clientを設定する。この時点では実行するクックブックは空のまま。
@@ -162,7 +165,12 @@ Vagrant.configure(2) do |config|
 end
 ```
 
-ここで Chef-Clientの設定ファイルとして"chef_custom_config"を指定しています。カレントディレクトリに以下のようなファイルを作成します。これはSSH関係の渓谷を出さないようにするための対処です。
+ここで Chef-Clientの設定ファイルとして"chef_custom_config"を指定しています。カレントディレクトリに以下のようなファイルを作成します。これはSSH関係の警告を出さないようにするための対処です。
+
+```
+% more chef_custom_config
+Chef::Config.ssl_verify_mode = :verify_peer
+```
 
 それでは仮想マシンが立ち上がるところからプロセスを確認するため、一度、作成済みの仮想マシンを破棄し、再度立ち上げます。
 
@@ -171,35 +179,166 @@ end
 % vagrant up
 ```
 
-今回、クックブックは可能な限り、コミュニティで開発されたものを再利用します。コミュニティで共有されているクックブックを取得するためのツールとして Berkshelf があります。この Berkshelf を Vagant から呼び出すために必要なvagrantプラグイン vagrant-berkshelf をインストールします。
+プラグインのインストールと設定ファイルの記述が正しく行われていれば、Chef Zero Serverも起動し、ゲストにChefのインストールが行われます。今回はクックブックを指定なかったため、Chefのrun listが空である旨が記載されています。
 
 ```
-% vagrant plugin install vagrant-berkshelf
+% vagrant up
+Starting Chef Zero at http://192.168.179.4:4000
+==> default: Installing Chef 12.0.3
+==> default: Thank you for installing Chef!
+==> default: Running provisioner: chef_client...
+==> default: Warning: Chef run list is empty. This may not be what you want.
+==> default: [2015-01-24T20:08:40-05:00] INFO: Chef Run complete in 0.046189483 seconds
 ```
 
+# Cookbookを使った PostgreSQL のインストール
 
-Vagrant.configure(2) do |config|
-  config.omnibus.chef_version=:latest
-  config.chef_zero.chef_repo_path = "."
+ここからようやく本題であるCookbookの作成にとりかかります。Cookbookは全て自分自分で作成する必要はなく、すでにコミュニティの有志によって作成されたものを再利用することができます。Cookbookの共有サイトである以下のURLにアクセスし、PostgreSQL をインストールできるCookbookを探してみましょう。
 
-  config.vm.box = "centos7"
-  config.vm.box_url = "https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box" 
-end
+https://supermarket.chef.io/
 
-# Install Play with a cookbook from the Chef Supermarket
+postgres というCookbookが存在します。78万件以上ダウンロードされ、最近もメンテナンスされているようですので、こちらを利用しましょう。
 
-There is a cookbook to install Play Framework on the Chef Supermarket, which is a website that Chef user can share own cookbooks to the other users. To download and use cookbooks on the Chef Supermarkrt, you should use Berkshelf. It is a dependency management tool for Chef cookbook. Berkshelf can download all cookbooks that depends on a cookbook you need.
- 
-You need to prepare Berksfile, which is a configuration file for Berkshelf. 
+https://supermarket.chef.io/cookbooks/postgresql
 
-$ vim Berkshelf
+Cookbook を利用する場合、注意する必要があるのが、Cookbook 間の依存関係です。これはライブラリと同じで、ある Cookbook が別の Cookbook に依存しているために目的の Cookbook を利用するために芋づる式に依存先の Cookbook を集めてくる必要があるのです。
 
+この依存関係の問題を解決するのが Berkshelf です。Berkshelf の設定ファイルである Berksfile に必要な Cookbook を記載しておけば、Berkshelf が必要な Cookbook を自動的に集めてきてくれます。
+
+カレントディレクトリに Berksfile というファイルを作成し、以下のように記述してください。
+
+```
+% more Berksfile
 source "https://api.berkshelf.com"
- 
-cookbook 'deploy-play'
 
-  8 # Install vagrant plugins
-  9 You need "vagrant-omnibus" plugin to provision chef on a VM you are launching.
- 10 $ vagrant plugin install vagrant-omnibus
- 11 $ vagrant plugin install vagrant-chef-zero
- 12 $ vagrant plugin install vagrant-berkshelf
+cookbook 'postgresql'
+```
+
+Berkshelf は Chef-DK に入っているため、すでに利用可能です。以下のコマンドを実行し、playframework と依存先の Cookbook をダウンロードしてください。
+- 第1引数 vendor は Cookbook をダウンロードすることを意味します。
+- 第2引数の coobooks は Cookbook のダウンロード先ディレクトリです。vagrant-chef-zero プラグインは Cookbooks というディレクトリに置かれた Cookbook を Chef Zero Server にアップロードします。
+
+```
+% berks vendor cookbooks
+```
+
+次に Vagrantfile を開いて、実行対象の Cookbook として postgresql を指定してください。vagrant provision を実行すると、実際に postgresql が Chef Zero Server にアップロードされた後、ゲスト側の Chef がその Cookbook を実行します。
+
+以下では postgresql のクックブックのうち、server と client と contrib の3つのレシピを指定しています。さらに postgresql の属性として postgres ユーザのパスワードを指定しています。このように Cookbook で用意されている設定に対して、ユーザが期待する設定を上書きすることもできます。
+
+```
+% vim Vagrantfile
+    config.vm.provision :chef_client do |chef|
+      chef.custom_config_path = "chef_custom_config"
+      chef.run_list = [
+          "postgresql::server",
+          "postgresql::client",
+          "postgresql::contrib"
+      ]
+      chef.json = {
+        :postgresql => {
+          :password => 'postgres'
+        }
+      }
+    end
+```
+
+実際に PostgreSQL がインストールされているか確認しましょう。無事に 9.2.7 がインストールされ、postgres ユーザでログインできることが確認できました。
+
+```
+% vagrant provision
+% vagrant ssh
+[vagrant@localhost ~]$ psql -h localhost -U postgres -W
+psql (9.2.7)
+postgres=#
+```
+
+次に PostgreSQL データベース sampledb を作成します。ここでもコミュニティのクックブック dabatase を利用して、DBの設定を行います。
+
+https://supermarket.chef.io/cookbooks/database
+
+ただし、 database はDBの設定を行うためのライブラリに相当する Cookbook で、実際の設定作業は自分のレシピとして実装する必要があります。Chef の慣習ではコミュニティの Cookbook と自作の Cookbook を分けて配置することが一般的です。
+
+それでカレントディレクトリ配下に site-cookbooks というディレクトリを作成し、PostgreSQL の設定を行う Cookbook として postgresql_config を作成します。
+- metadata.rb が Cookbook の情報を記載する箇所です。Cookbookの依存関係なども記載できます。
+- recipes ディレクトリはレシピの配置場所です。default.rb はデフォルトで実行されるレシピです。database に定義されている postgresql_database タスクを利用して実装しています。ここでは localhost に sample_db というデータベースを作成し、 postgres ユーザからアクセスできるようにしています。
+
+```
+% more site-cookbooks/postgresql_config/metadata.rb
+name             'postgresql_config'
+maintainer       'Yohei Onishi'
+maintainer_email 'yohei@example.co.jp'
+license          'Yohei Onishi All rights reserved'
+description      'Configures postgres'
+long_description 'Configures postgres'
+version          '0.1.0'
+
+%more site-cookbooks/postgresql_config/recipes/default.rb
+postgresql_database 'sampledb' do
+  connection(
+    :host     => '127.0.0.1',
+    :port     => 5432,
+    :username => 'postgres',
+    :password => node['postgresql']['password']['postgres']
+  )
+  template 'DEFAULT'
+  encoding 'DEFAULT'
+  tablespace 'DEFAULT'
+  connection_limit '-1'
+  owner 'postgres'
+  action :create
+end
+```
+
+すでに説明した通り、Chef Zero Server で Cookbooks を利用するために、berks コマンドで依存先の Cookbooks を含めて再度ダウンロードします。以下のように dabatase および postgresql_config を追記してください。postgresql_config は自作の Cookbook であるため、取得元を指定していることに注意してください。このように Berksfile を記載することで、自作の Cookbook だけ site-cookbooks に配置して、構成管理対象にし、プロビジョニングするときだけコミュニティの Cookbook を含めて cookbooks にコピーして利用することができます。 
+
+```
+% more Berksfile                                                                                       (git)-[mast
+source "https://api.berkshelf.com"
+
+#original cookbooks
+cookbook 'postgresql_config',  path: './site-cookbooks/postgresql_config'
+
+#community cookbooks
+cookbook 'database'
+cookbook 'postgresql'
+```
+
+新たに利用する Cookbook をダウンロードします。
+
+```
+% berks vendor cookbooks
+```
+
+新たに追加した Cookbook を実行するため、Vagarntfile の Chef Client 設定部分の run_list に database と postgresql_config を追加してください。
+
+```
+  config.vm.provision :chef_client do |chef|
+    chef.custom_config_path = "chef_custom_config"
+    chef.run_list = [
+        "postgresql::server",
+        "postgresql::client",
+        "postgresql::contrib",
+        "database::postgresql",
+        "postgresql_config"
+    ]
+    chef.json = {
+      :postgresql => {
+        :password => 'postgres'
+      }
+    }
+  end
+```
+
+再度プロビジョンを行った後、SSH接続して、PostgreSQL 上に sampledb データベースが作成されていることを確認してください。
+
+```
+% vagrant provision
+% vagrant ssh
+[vagrant@localhost ~]$ psql -h localhost -U postgres -W
+postgres=# \connect sampledb
+データベース "sampledb" にユーザ"postgres"として接続しました。
+```
+
+以上で、ゲスト側に PostgreSQL をインストールし、sampledb を作成することができました。
+
