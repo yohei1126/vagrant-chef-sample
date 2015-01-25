@@ -199,13 +199,23 @@ Starting Chef Zero at http://192.168.179.4:4000
 
 # Cookbookを使った PostgreSQL のインストール
 
-ここからようやく本題であるCookbookの作成にとりかかります。Cookbookは全て自分自分で作成する必要はなく、すでにコミュニティの有志によって作成されたものを再利用することができます。Cookbookの共有サイトである以下のURLにアクセスし、PostgreSQL をインストールできるCookbookを探してみましょう。
+ここからようやく本題であるCookbookの作成にとりかかります。今回は以下の作業を自動化します。
+
+- PostgreSQLの server、client、contrib パッケージのインストール
+- postgres ユーザのパスワード設定
+- sampledb データベースの作成
+
+## コミュニティの Cookbook の利用
+
+Cookbookは全て自分自分で作成する必要はなく、すでにコミュニティの有志によって作成されたものを再利用することができます。Cookbookの共有サイトである以下のURLにアクセスし、PostgreSQL をインストールできるCookbookを探してみましょう。
 
 https://supermarket.chef.io/
 
-postgres というCookbookが存在します。78万件以上ダウンロードされ、最近もメンテナンスされているようですので、こちらを利用しましょう。
+postgres というCookbookがよく使われているようです。数十万件ダウンロードされ、最近もメンテナンスされているようですので、こちらを利用しましょう。
 
 https://supermarket.chef.io/cookbooks/postgresql
+
+## Berkshelf による Cookbook の依存関係解決
 
 Cookbook を利用する場合、注意する必要があるのが、Cookbook 間の依存関係です。これはライブラリと同じで、ある Cookbook が別の Cookbook に依存しているために目的の Cookbook を利用するために芋づる式に依存先の Cookbook を集めてくる必要があるのです。
 
@@ -220,7 +230,7 @@ source "https://api.berkshelf.com"
 cookbook 'postgresql'
 ```
 
-Berkshelf は Chef-DK に入っているため、すでに利用可能です。以下のコマンドを実行し、playframework と依存先の Cookbook をダウンロードしてください。
+Berkshelf は Chef-DK に入っているため、すでに利用可能です。以下のコマンドを実行し、postgresql と依存先の Cookbook をダウンロードしてください。
 - 第1引数 vendor は Cookbook をダウンロードすることを意味します。
 - 第2引数の coobooks は Cookbook のダウンロード先ディレクトリです。vagrant-chef-zero プラグインは Cookbooks というディレクトリに置かれた Cookbook を Chef Zero Server にアップロードします。
 
@@ -258,6 +268,8 @@ Berkshelf は Chef-DK に入っているため、すでに利用可能です。�
 psql (9.2.7)
 postgres=#
 ```
+
+##データベース構築 Cookbook の作成
 
 次に PostgreSQL データベース sampledb を作成します。ここでもコミュニティのクックブック dabatase を利用して、DBの設定を行います。
 
