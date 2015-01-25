@@ -1,5 +1,7 @@
-# vagrant-chef-sample
+# Vagrant と Chef による自動環境の構築
 本チュートリアルは Vagrant と Chef を使って、VM 上の CentOS 7 に Play Framework と PostgreSQL を使ったアプリケーション環境を構築する方法を紹介します。
+
+![Vagrant と Chef による環境構築のイメージ](./img/vagrant-chef.png)
 
 # Vagrant のインストール
 
