@@ -1,31 +1,34 @@
 # vagrant-chef-sample
-本チュートリアルはVagrantとChefを使って、VM上のCentOS 7に Play Framework と PostgreSQL を使ったアプリケーション環境を構築する方法を紹介します。
+本チュートリアルは Vagrant と Chef を使って、VM 上の CentOS 7 に Play Framework と PostgreSQL を使ったアプリケーション環境を構築する方法を紹介します。
 
-# Vagrantのインストール
-最初にVagrantでCentOSがインストールされたVMを立ち上げてみます。以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
+# Vagrant のインストール
+
+最初に Vagrant で CentOS がインストールされた VM を立ち上ます。以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
+
 http://www.vagrantup.com/downloads
 
-※本記事執筆時点での最新バージョンは1.7.2ですが、動作確認ができたバージョンをここでは使います。
+（注意）本記事執筆時点での最新バージョンは 1.7.2 ですが、本記事では動作確認ができたバージョンをここでは使います。
 
-インストールしたら以下のコマンドでVagarantが実行できることを確認してください。
+インストールしたら以下のコマンドで Vagarant が実行できることを確認してください。
 
 ```
 % vagrant --version
 Vagrant 1.6.5
 ```
 
-#Vagrantfileの作成
-Vagarntを実行する際にはVagrantfileという設定ファイルでVagrantの実行方法を指定します。Vagrantfileのひな形は以下のコマンドで作成できます。
+# Vagrantfile の作成
+
+Vagarnt を実行する際には Vagrantfile という設定ファイルで Vagrant の実行方法を指定します。Vagrantfile のひな形は以下のコマンドで作成できます。
 
 ```
 $ vagrant init
 ```
 
-Vagrantは0から仮想マシンをインストールしません。そのかわりに仮想マシンのベースイメージを使用することで、起動時間を早くします。このベースイメージのことをBoxといいます。Boxは自分で作成する必要はありません。Vagrantbox.esというWebサイトで有志が作成したBoxが提供されています。
+Vagrant は 0 から仮想マシンを起動しません。そのかわりに仮想マシンのベースイメージを使用することで、起動時間を早くします。このベースイメージのことを Box といいます。Box は自分で作成する必要はありません。Vagrantbox.es という Web サイトで有志が作成した Box が提供されています。
 
 http://www.vagrantbox.es/
 
-ここではVagrantbox.esに掲載されているCentOS 7のBoxのうち、「CentOS7.0 x86_64 minimal (VirtualBoxGuestAddtions 4.3.14)」を利用します。
+ここでは Vagrantbox.es に掲載されている CentOS 7 の Box のうち、「CentOS7.0 x86_64 minimal (VirtualBoxGuestAddtions 4.3.14)」を利用します。
 
 ```
 $vim Vagrantfile
@@ -36,7 +39,10 @@ $vim Vagrantfile
  end
 ```
 
-config.vm.boxに自分のboxの名前としてboxの内容が分かるような文字列を指定します。config.vm.box_urlにはCentOS 7のBoxのURLを指定します。これらの記述により、ローカルのBox置き場に"centos7"というBoxが存在する場合、ローカルのBoxを使います。存在しない場合、指定したURLからBoxをダウンロードし、ローカルに配置します。
+- config.vm.box に自分の box の名前として box の内容が分かるような文字列を指定します。
+- config.vm.box_url には CentOS 7 の Box の URL を指定します。
+
+これらの記述により、ローカルの Box 置き場に "centos7" という Box が存在する場合、ローカルの Box を使います。存在しない場合、指定した URL から Box をダウンロードし、ローカルに配置します。
 
 #仮想マシンの起動
 
