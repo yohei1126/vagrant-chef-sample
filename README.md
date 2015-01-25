@@ -110,7 +110,9 @@ https://downloads.chef.io/chef-dk/
 
 なお、ChefはChef-DKと一緒にインストールされるRubyで実行されことが推奨されています。PATH上に別のRubyがあるとトラブルが発生するため、以下のコマンドでChef-DKのRubyを使うように指定して下さい。
 
+```
  eval "$(chef shell-init SHELL_NAME)"
+```
 
 （注意）SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてください。
 
@@ -125,11 +127,11 @@ Chef Development Kit Version: 0.3.6
 
 VagrantとChefを使ってゲストOSの設定を行う場合、以下のような流れでゲストOSの設定が行われます。これらはVagrantによって自動的に実行されるため、ユーザは特に意識する必要がありません。
 
-- ホスト側でChef-zero serverという簡易的なサーバを立ち上げ、クックブックをサーバにアップロードする
-- ゲスト側にChef-clientがインストールされる
-- ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
+1. ホスト側でChef-zero serverという簡易的なサーバを立ち上げ、クックブックをサーバにアップロードする
+2. ゲスト側にChef-clientがインストールされる
+3. ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
 
-まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
+ここでは最初に上記の1と2が実行されることを確認しましょう。まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
 
 ```
 % vagrant plugin install vagrant-chef-zero
@@ -145,19 +147,28 @@ VagrantとChefを使ってゲストOSの設定を行う場合、以下のよう�
 以下の設定ファイルでは以下を指示しています。
 - ゲストOSに最新のChefをインストールする
 - Chef-zero のリポジトリとしてカレントディレクトリを設定する。
+- プロビジョン（各種設定を行うツール）としてChef-clientを設定する。この時点では実行するクックブックは空のまま。
 
+```
 Vagrant.configure(2) do |config|
   config.omnibus.chef_version=:latest
   config.chef_zero.chef_repo_path = "."
-   
   config.vm.box = "centos7"
   config.vm.box_url = "https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box"
+  config.vm.provision :chef_client do |chef|
+    chef.custom_config_path = "chef_custom_config"
+    chef.run_list = []
+  end
 end
+```
 
+ここで Chef-Clientの設定ファイルとして"chef_custom_config"を指定しています。カレントディレクトリに以下のようなファイルを作成します。これはSSH関係の渓谷を出さないようにするための対処です。
 
+それでは仮想マシンが立ち上がるところからプロセスを確認するため、一度、作成済みの仮想マシンを破棄し、再度立ち上げます。
 
 ```
-% vagrant provision
+% vagrant destroy
+% vagrant up
 ```
 
 今回、クックブックは可能な限り、コミュニティで開発されたものを再利用します。コミュニティで共有されているクックブックを取得するためのツールとして Berkshelf があります。この Berkshelf を Vagant から呼び出すために必要なvagrantプラグイン vagrant-berkshelf をインストールします。
