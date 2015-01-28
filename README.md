@@ -53,7 +53,7 @@ http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
 
 ## Vagrant のインストール
 
-最初に Vagrant で CentOS がインストールされた VM を立ち上ます。以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
+以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
 
 http://www.vagrantup.com/downloads
 
@@ -66,9 +66,9 @@ http://www.vagrantup.com/downloads
 Vagrant 1.6.5
 ```
 
-## Chefのインストール
+## Chef のインストール
 
-Chefの開発に必要なひと通りの開発環境がパッケージされたChef-DKi(バージョン0.3.5)をダウンロードして、インストールしてください。以下のURLからインストーラをダウンロードできます。画面中央にあるOSのアイコンをクリックし、OSにあったインストーラのダウンロードページを開く必要があります。
+Chef-DK という Chef を利用する際に必要なツールをひとまとめにしたキットを利用します。以下の URL から Chef-DK のインストーラをダウンロードしてください。画面中央にある OS のアイコンをクリックし、OS に合ったインストーラのダウンロードページを開く必要がある点に注意して下さい。
 
 https://downloads.chef.io/chef-dk/
 
@@ -89,32 +89,37 @@ Chef Development Kit Version: 0.3.5
 
 ## Vagrantプラグインのインストール
 
-前述のとおり、Vagrant は仮想環境構築のフロントエンドとなるツールです。ユーザが直接利用するのは Vagrant であり、Vagrantのプラグインが
+Vagrant は仮想環境構築のフロントエンドとなるツールです。仮想マシンを立ち上げたり、Chef でソフトウェアをインストール作業は Vagrant のプラグインから行います。
 
-VagarntからVirtualBoxを利用する場合、vagrant-vbguestというVagrantのプラグインをインストールしておく必要があります。
+以下のコマンドで vagrant-vbguest という VirtualBox を Vagrant から利用するためのプラグインをインストールします。
 
-$vagrant plugin install vagrant-vbguest
+```
+$ vagrant plugin install vagrant-vbguest
+```
 
-VagrantとChefを使ってゲストOSの設定を行う場合、以下のような流れでゲストOSの設定が行われます。これらはVagrantによって
-自動的に実行されるため、ユーザは特に意識する必要がありません。
-
-1. ホスト側でChef-zero serverという簡易的なサーバを立ち上げ、クックブックをサーバにアップロードする
-2. ゲスト側にChef-clientがインストールされる
-3. ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
-
-Chef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
+次に Vagrant から Chef Zero Server を起動するためのプラグイン vagrant-chef-zero をインストールします。
 
 ```
 % vagrant plugin install vagrant-chef-zero
 ```
  
- 次にゲストOSにChefをインストールするために必要なVagrantプラグイン vagrant-omnibus をインストールします。
+ 次にゲスト OS に Chef をインストールするために必要なプラグイン vagrant-omnibus をインストールします。
  
 ```
 % vagrant plugin install vagrant-omnibus
 ```
 
-## 仮想マシンの起動確認
+以上で環境設定は終了です。
+
+## アプリケーションの起動
+
+ようやく実際に Vagrant と Chef でアプリケーションを起動してみましょう。以下のコマンドで Vagrant や Chef の設定ファイルは Github リポジトリから取得してください。
+
+```
+git clone https://github.com/yohei1126/vagrant-chef-sample.git
+cd vagrant-chef-sample
+vagrant up
+```
 
 それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。
 
