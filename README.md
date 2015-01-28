@@ -12,7 +12,7 @@ AWSといったクラウドサービスが一般に浸透したことにより�
 
 # 構築する環境
 
-本記事では、インフラ構築自動化の例として、DBを使った簡単なWebアプリケーションを構築します。
+本記事では、インフラ構築自動化の例として、以下のソフトウェアを使い、 データベース中のデータを一覧表示する簡単な Web アプリケーションを構築します。
 
 TODO: バージョンを明記する。
 
@@ -119,7 +119,7 @@ $ vagrant plugin install vagrant-vbguest
 
 ## アプリケーションの起動
 
-ようやく実際に Vagrant と Chef でアプリケーションを起動してみましょう。以下のコマンドで Vagrant や Chef の設定ファイルは Github リポジトリから取得してください。
+ようやく実際に Vagrant と Chef でアプリケーションを起動してみましょう。以下のコマンドで Vagrant や Chef の設定ファイルを Github リポジトリから取得してください。
 
 ```
 git clone https://github.com/yohei1126/vagrant-chef-sample.git
@@ -141,16 +141,29 @@ Vagrant は仮想マシンの起動時間を短縮するため、Box と呼ば�
 INFO: Chef Run complete in 0.046189483 seconds
 ```
 
+Vagrant のコマンドを使って、ゲスト OS に SSH で接続できます。
+
 ```
 $ vagrant ssh
-[vagrant@localhost ~]$ psql -h localhost -U postgres -W
+```
+
+以下のコマンドで PostgreSQL がインストールされ、データベースが構築されていることを確認してください。
+
+```
+$ psql -h localhost -U postgres -W
+(postgres ユーザのパスワード postgres を入力)
 postgres=# \connect sampledb
 postgres=# select * from sample_table;
-==> default: Machine booted and ready!
-==> default: Checking for guest additions in VM...
-==> default: Mounting shared folders...
-    default: /vagrant => /Users/yohei/work/vagrant-chef-sample
 ```
+
+Play Framework の組み込み Web サーバである Netty にはポート 9000 番でアクセスできます。Web サーバが起動し、データベース中のデータを一覧化する Web ページを出力していることを確認してみましょう。
+
+```
+$ curl localhost:9000
+（データベースの内容を一覧化する HTML が出力）
+```
+
+TODO：ゲスト OS にブラウザでのぞけるなら、そっちの方が良い。やれるか試してみる。
 
 うまく起動できたら、SSHでゲストOSに接続できることも確認します。
 
