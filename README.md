@@ -128,7 +128,6 @@ cd vagrant-chef-sample
 
 次に以下のコマンドで仮想マシンを立ち上げ、環境構築を行っててみましょう。
 
-
 ```
 $ vagrant up
 ```
@@ -165,14 +164,19 @@ $ curl localhost:9000
 
 TODO：ゲスト OS にブラウザでのぞけるなら、そっちの方が良い。やれるか試してみる。
 
-うまく起動できたら、SSHでゲストOSに接続できることも確認します。
+以上で環境構築が完了し、アプリケーションが立ち上がるところまで自動化できていることが確認できました。一番最初に環境構築を行うホスト側の設定に一苦労しますが、手順が一度確率していれば、簡単に環境構築できることがお分かりいただけたと思います。
 
-$ vagrant ssh
+動作が確認できたら、以下のコマンドで一旦作成した仮想マシンを破棄してください。
 
+```
+$ vagarnt destroy
+```
 
 # Vagrant と Chef の実践
 
-ここからは前の節で環境構築し、動作を確認したアプリケーションについて実際に Vagrant と Chef の設定ファイルを書いて、環境構築する手順を紹介します。
+ここからは前の節で環境構築し、動作を確認したアプリケーションについて実際に新規で Vagrant と Chef の設定ファイルを書き、自分で環境構築する手順書を作成して行く方法を紹介します。
+
+なお、Vagarnt / Chef / Vagrant プラグインといったツールはひと通りホスト側にインストールされているという前提で手順を説明します。まだインストールされていない場合は、一度、前の節に戻って、ホスト側の環境設定を行って下さい。
 
 # Vagrantfile の作成
 
@@ -182,15 +186,13 @@ Vagarnt を実行する際には Vagrantfile という設定ファイルで Vagr
 $ vagrant init
 ```
 
-Vagrant は 0 から仮想マシンを起動しません。そのかわりに仮想マシンのベースイメージを使用することで、起動時間を早くします。このベースイメージのことを Box といいます。Box は自分で作成する必要はありません。Vagrantbox.es という Web サイトで有志が作成した Box が提供されています。
+前述のとおり、 Vagrant は Box と呼ばれる仮想マシンのベースイメージを使用して、短時間で仮想環境を立ち上げます。Vagrantfile には Box の取得場所を指定します。ここでは Vagrantbox.es という有志が作成した Box を公開する Web サイトから取得する旨を指示します。
 
 http://www.vagrantbox.es/
 
-ここでは Vagrantbox.es に掲載されている CentOS 7 の Box のうち、「CentOS7.0 x86_64 minimal (VirtualBoxGuestAddtions 4.3.14)」を利用します。
-
-```
 $vim Vagrantfile
 
+```
  Vagrant.configure(2) do |config|
    config.vm.box = "centos7"
    config.vm.box_url="https://f0fff3908f081cb6461b407be80daf97f07ac418.googledrive.com/host/0BwtuV7VyVTSkUG1PM3pCeDJ4dVE/centos7.box"
@@ -199,113 +201,32 @@ $vim Vagrantfile
 
 - config.vm.box に自分の box の名前として box の内容が分かるような文字列を指定します。
 - config.vm.box_url には CentOS 7 の Box の URL を指定します。
+- Vagrantbox.es に掲載されている CentOS 7 の Box のうち、「CentOS7.0 x86_64 minimal (VirtualBoxGuestAddtions 4.3.14)」を利用します。
 
 これらの記述により、ローカルの Box 置き場に "centos7" という Box が存在する場合、ローカルの Box を使います。存在しない場合、指定した URL から Box をダウンロードし、ローカルに配置します。
 
-#仮想マシンの起動
+# 仮想マシンの起動
 
-この時点で仮想マシンが起動できるか確かめてみましょう。なお、今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
-
-http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
-
-また、VagarntからVirtualBoxを利用する場合、vagrant-vbguestというVagrantのプラグインをインストールしておく必要があります。
-
-```
-$vagrant plugin install vagrant-vbguest
-```
-
-それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。
+この時点で一度仮想マシンが起動できるか確かめてみましょう。
 
 ```
 $ vagrant up
-
 ==> default: Machine booted and ready!
 ==> default: Checking for guest additions in VM...
 ==> default: Mounting shared folders...
     default: /vagrant => /Users/yohei/work/vagrant-chef-sample
 ```
 
-うまく起動できたら、SSHでゲストOSに接続できることも確認します。
+うまく起動できたら、SSH でゲスト OS に接続できることも確認します。
 
 ```
 $ vagrant ssh
 
 ```
 
-その他にもよく使うコマンドとして以下があります。
+# Chef Zero Server の起動および Chef Client の実行
 
-- Vagarntの実行状況を確認する。
-
-```
-%vagrant status
-```
-
-- 仮想マシンを停止する。
-
-```
-% vagrant halt
-```
-
-- 仮想マシンを一時停止する。
-
-```
-% vagrant suspend
-```
-
-- 仮想マシンを再開する。
-
-```
-% vagrant resume
-```
-
-- 仮想マシンを終了する。※仮想マシンを作り直したい時に使用する。
-
-```
-% vagrant destroy
-```
-
-# Chefのインストール
-仮想マシンの起動まで確認できたため、次にChefを使ってPlay frameworkとPostgreSQLのインストールを行います。
-
-まずChefの開発に必要なひと通りの開発環境がパッケージされたChef-DKi(バージョン0.3.5)をダウンロードして、インストールしてください。以下のURLからインストーラをダウンロードできます。画面中央にあるOSのアイコンをクリックし、OSにあったインストーラのダウンロードページを開く必要があります。
-
-https://downloads.chef.io/chef-dk/
-
-（注意）
-- 本記事執筆時点での最新バージョンは0.3.5ですが、動作確認がとれたバージョンを使用しています。
-- ホスト側ではChefは実行されませんが、ゲストOSにChefで環境設定するために必要なツール群がChef-DKでインストールされます。
-
-なお、ChefはChef-DKと一緒にインストールされるRubyで実行されことが推奨されています。PATH上に別のRubyがあるとトラブルが発生するため、以下のコマンドでChef-DKのRubyを使うように指定して下さい。
-
-```
- eval "$(chef shell-init SHELL_NAME)"
-```
-
-（注意）
-- SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてください。
-
-以下のコマンドでChef-DKがインストールされていることを確認してください。
-
-```
-%chef -v
-Chef Development Kit Version: 0.3.5
-```
-
-# Chefの実行に必要なVagrantプラグインのインストール
-
-VagrantとChefを使ってゲストOSの設定を行う場合、以下のような流れでゲストOSの設定が行われます。これらはVagrantによって自動的に実行されるため、ユーザは特に意識する必要がありません。
-
-1. ホスト側でChef-zero serverという簡易的なサーバを立ち上げ、クックブックをサーバにアップロードする
-2. ゲスト側にChef-clientがインストールされる
-3. ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
-
-ここでは最初に上記の1と2が実行されることを確認しましょう。まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
-
-```
-% vagrant plugin install vagrant-chef-zero
-```
-
-次にゲストOSにChefをインストールするために必要なVagrantプラグイン vagrant-omnibus をインストールします。
+仮想マシンの起動まで確認できたため、次に Vagrant プラグインからホストOS側で Chef Zero Server が起動出来る点、またゲスト OS 側に Chef Client がインストールされることを確認します。
 
 ```
 % vagrant plugin install vagrant-omnibus
