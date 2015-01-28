@@ -1,4 +1,4 @@
-AAA# Vagrant と Chef による自動環境の構築（VirtualBox編）
+# Vagrant と Chef による自動環境の構築（VirtualBox編）
 
 AWSといったクラウドサービスが一般に浸透したことにより、仮想環境を前提とした開発が一般的になってきました。必要になったときに必要な構成のリソースにアクセスできるクラウドの強みを活かすため、オンデマンドで仮想環境を構築し直す機会が以前よりも増えてきています。このような状況では、仮想環境をより効率的に構築することが重要になっています。本記事のシリーズズでは効率的な仮想環境構築の手段の一つとして、Vagrant と Chef というツールを使い、環境構築を自動化する方法を紹介します。
 
@@ -33,10 +33,17 @@ AWSといったクラウドサービスが一般に浸透したことにより�
   <dd>ソフトウェアのインストールや各種設定を行うことができる。本記事では、ゲストOSの環境設定に利用する。</dd>
 </dl>
 
-# Vagrant - Chef の連携による仮想環境構築のイメージ
+# Vagrant - Chef の連携による仮想環境構築の流れ
+
+※説明と画像に食い違いがあリます。後で最新に置き換えます。
+
+Vagrant と Chef の詳細に入る前に、両者を連携させて仮想環境を構築する手順を紹介します。
+
 ![Vagrant と Chef による環境構築のイメージ](./img/vagrant-chef.png)
 
-# Vagrant のインストール
+# まずは Vagrant と Chef を動かしてみよう
+
+## Vagrant のインストール
 
 最初に Vagrant で CentOS がインストールされた VM を立ち上ます。以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
 
@@ -50,6 +57,59 @@ http://www.vagrantup.com/downloads
 % vagrant --version
 Vagrant 1.6.5
 ```
+
+## VirtualBoxのインストール
+
+今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
+
+http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
+
+## Chefのインストール
+
+Chefの開発に必要なひと通りの開発環境がパッケージされたChef-DKi(バージョン0.3.5)をダウンロードして、インストールしてください。以下のURLからインストーラをダウンロードできます。画面中央にあるOSのアイコンをクリックし、OSにあったインストーラのダウンロードページを開く必要があります。
+
+https://downloads.chef.io/chef-dk/
+
+（注意）
+- 本記事執筆時点での最新バージョンは0.3.5ですが、動作確認がとれたバージョンを使用しています。
+- ホスト側ではChefは実行されませんが、ゲストOSにChefで環境設定するために必要なツール群がChef-DKでインストールされます。
+- ChefはChef-DKと一緒にインストールされるRubyで実行されことが推奨されています。PATH上に別のRubyがあるとトラブルが発生するため、以下のコマンドでChef-DKのRubyを使うように指定して下さい。
+
+ eval "$(chef shell-init SHELL_NAME)"
+（注意）
+
+SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてください。
+
+以下のコマンドでChef-DKがインストールされていることを確認してください。
+
+%chef -v
+Chef Development Kit Version: 0.3.5
+
+
+## Vagrantプラグインのインストール
+
+VagarntからVirtualBoxを利用する場合、vagrant-vbguestというVagrantのプラグインをインストールしておく必要があります。
+
+$vagrant plugin install vagrant-vbguest
+
+## 仮想マシンの起動確認
+
+それでは以下のコマンドで仮想マシンを立ち上げてみましょう。最初はBoxのダウンロードとインストールなどが実行されるため、時間がかかる点に注意してください。
+
+$ vagrant up
+
+==> default: Machine booted and ready!
+==> default: Checking for guest additions in VM...
+==> default: Mounting shared folders...
+    default: /vagrant => /Users/yohei/work/vagrant-chef-sample
+うまく起動できたら、SSHでゲストOSに接続できることも確認します。
+
+$ vagrant ssh
+
+
+# Vagrant と Chef の実践
+
+ここからは前の節で環境構築し、動作を確認したアプリケーションについて実際に Vagrant と Chef の設定ファイルを書いて、環境構築する手順を紹介します。
 
 # Vagrantfile の作成
 
