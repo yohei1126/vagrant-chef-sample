@@ -43,6 +43,12 @@ Vagrant と Chef の詳細に入る前に、両者を連携させて仮想環境
 
 # まずは Vagrant と Chef を動かしてみよう
 
+## VirtualBoxのインストール
+
+今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
+
+http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
+
 ## Vagrant のインストール
 
 最初に Vagrant で CentOS がインストールされた VM を立ち上ます。以下のURLからバージョン1.6.5のVagrantのインストーラをダウンロードし、インストールを行って下さい。
@@ -57,12 +63,6 @@ http://www.vagrantup.com/downloads
 % vagrant --version
 Vagrant 1.6.5
 ```
-
-## VirtualBoxのインストール
-
-今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
-
-http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
 
 ## Chefのインストール
 
@@ -85,12 +85,32 @@ SHELL_NAMEの箇所は自分が使っているシェル名に置き換えてく�
 %chef -v
 Chef Development Kit Version: 0.3.5
 
-
 ## Vagrantプラグインのインストール
 
 VagarntからVirtualBoxを利用する場合、vagrant-vbguestというVagrantのプラグインをインストールしておく必要があります。
 
 $vagrant plugin install vagrant-vbguest
+
+## Chefの実行に必要なVagrantプラグインのインストール
+
+VagrantとChefを使ってゲストOSの設定を行う場合、以下のような流れでゲストOSの設定が行われます。これらはVagrantによって
+自動的に実行されるため、ユーザは特に意識する必要がありません。
+
+1. ホスト側でChef-zero serverという簡易的なサーバを立ち上げ、クックブックをサーバにアップロードする
+2. ゲスト側にChef-clientがインストールされる
+3. ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
+
+ここでは最初に上記の1と2が実行されることを確認しましょう。まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
+
+```
+% vagrant plugin install vagrant-chef-zero
+```
+ 
+ 次にゲストOSにChefをインストールするために必要なVagrantプラグイン vagrant-omnibus をインストールします。
+ 
+```
+% vagrant plugin install vagrant-omnibus
+```
 
 ## 仮想マシンの起動確認
 
