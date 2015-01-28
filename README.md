@@ -43,6 +43,8 @@ Vagrant と Chef の詳細に入る前に、両者を連携させて仮想環境
 
 # まずは Vagrant と Chef を動かしてみよう
 
+ここからは実際に手を動かしながら、Vagrant と Chef の利用イメージを掴んでいただきます。最初に必要なツールをひと通りインストールした後、筆者があらかじめ用意した設定ファイルを利用して、アプリケーションが起動するまでを体験していただきます。最初にインストール作業が続きますが、少々辛抱してください ^^; 
+
 ## VirtualBoxのインストール
 
 今回はVirtualBoxで仮想マシンを立ち上げます。VirtualBoxが手元にインストールされていない場合はインストールしてください。
@@ -87,11 +89,11 @@ Chef Development Kit Version: 0.3.5
 
 ## Vagrantプラグインのインストール
 
+前述のとおり、Vagrant は仮想環境構築のフロントエンドとなるツールです。ユーザが直接利用するのは Vagrant であり、Vagrantのプラグインが
+
 VagarntからVirtualBoxを利用する場合、vagrant-vbguestというVagrantのプラグインをインストールしておく必要があります。
 
 $vagrant plugin install vagrant-vbguest
-
-## Chefの実行に必要なVagrantプラグインのインストール
 
 VagrantとChefを使ってゲストOSの設定を行う場合、以下のような流れでゲストOSの設定が行われます。これらはVagrantによって
 自動的に実行されるため、ユーザは特に意識する必要がありません。
@@ -100,7 +102,7 @@ VagrantとChefを使ってゲストOSの設定を行う場合、以下のよう�
 2. ゲスト側にChef-clientがインストールされる
 3. ゲスト側のChef-clientがホスト側のChef-zero serverからクックブックを受け取り、クックブックにそって各種設定を行う。
 
-ここでは最初に上記の1と2が実行されることを確認しましょう。まず、ホスト側でChef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
+Chef-zero serverを立ち上げるために必要なVagrantプラグイン vagrant-chef-zero をインストールします。
 
 ```
 % vagrant plugin install vagrant-chef-zero
