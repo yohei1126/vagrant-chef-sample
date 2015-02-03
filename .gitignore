@@ -1,3 +1,4 @@
+*.log
 .vagrant
 .zero-knife.rb
 Berksfile.lock
