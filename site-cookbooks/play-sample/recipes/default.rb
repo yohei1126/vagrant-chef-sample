@@ -8,7 +8,7 @@ bash "activator-run" do
   cwd '/home/vagrant/play-sample/'
   code <<-EOH
     ./activator clean stage
-    target/universal/stage/bin/play-sample 
+    target/universal/stage/bin/play-sample & 
   EOH
 end
 

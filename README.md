@@ -154,12 +154,14 @@ postgres=# \connect sampledb
 postgres=# select * from sample_table;
 ```
 
-Play Framework の組み込み Web サーバである Netty にはポート 9000 番でアクセスできます。Web サーバが起動し、データベース中のデータを一覧化する Web ページを出力していることを確認してみましょう。
+ゲストとホスト側はブリッジ接続しているため、ホスト側からゲスト側で動作する Netty（Play Framework の組み込み Web サーバ）にアクセスできます。ゲスト OS に SSH した状態で、ゲスト OS の IP アドレスを取得してください。
 
 ```
-$ curl localhost:9000
-（データベースの内容を一覧化する HTML が出力）
+$ ip a show
+（ネットワーク設定が表示される。）
 ```
+
+http://（ゲストの IP アドレス）:9000 にアクセスすると、ゲスト OS 側で動作する Web アプリケーションにアクセスできます。
 
 以上で環境構築が完了し、アプリケーションが立ち上がるところまで自動化できていることが確認できました。一番最初に環境構築を行うホスト側の設定に一苦労しますが、手順が一度確率していれば、簡単に環境構築できることがお分かりいただけたと思います。
 
@@ -434,4 +436,118 @@ postgres=# \connect sampledb
 ```
 
 以上で、ゲスト側に PostgreSQL をインストールし、sampledb を作成することができました。
+
+# Play Framework を使った Web アプリケーションのインストールと起動
+
+次に Play Framework （Java / Scala 向け Web フレームワーク）を使った Web アプリケーションのインストールおよび起動を行います。ここでは以下の一連の作業を Chef で自動化します。
+
+1. ソースコードを Github リポジトリから取得する。
+2. コマンドラインツール activator でソースコードをビルドし、アプリケーションを起動する。
+
+（注意）本記事は Play Framework 自体の解説は行いません。Play Framework 自体については他の Web 記事や書籍を参照してください。
+
+Play Framework 向けの Chef でも Cookbook の最小構成として metadata.rb とレシピ (default.rb) を作成します。本 Cookbook は自作 Cookbook のため、 site-cookbooks ディレクトリ配下に作成します。
+
+metadata.rb では Cookbook をインストールする際に必要な以下の2つ Cookbook への依存関係を記述しています。
+
+- git: git をインストールする Cookbook です。本サンプルではソースコードを Github から取得する際に git を使います。
+- java: Java をインストールする Cookbook です。Play Framework はビルド・実行に Java が必要です。
+
+```
+% more site-cookbooks/play-sample/metadata.rb
+name             'play-sample'
+maintainer       'Yohei Onishi'
+maintainer_email 'yohei@example.co.jp'
+license          'Yohei Onishi All rights reserved'
+description      'clone from repo'
+long_description 'clone from repo'
+version          '0.1.0'
+
+depends 'git'
+depends 'java'
+```
+
+次にデフォルトの Recipe（default.rb） では、ソースコードを Github リポジトリから取得し、activator コマンドを使って Play Framework を使ったアプリケーションをビルド・起動しています。
+本 Recipe を見てお分かりの通り、Ruby の DSL として簡潔に記述できます。
+
+```
+% more site-cookbooks/play-sample/recipes/default.rb
+git '/home/vagrant/play-sample' do
+  repository 'https://github.com/ogis-onishi/play-sample.git'
+  user 'vagrant'
+end
+
+bash "activator-run" do
+  user 'root'
+  cwd '/home/vagrant/play-sample/'
+  code <<-EOH
+    ./activator clean stage
+    target/universal/stage/bin/play-sample & 
+  EOH
+end
+```
+
+site-cookbooks に置いておくと Chef Zero Server にアップロードされないため、Berksfile に追記しておきます。
+
+```
+cookbook 'play-sample',        path: './site-cookbooks/play-sample'
+```
+
+再度、berks vendor cookbooks を実行すると、依存先の Cookbook が収集され、cookbooks ディレクトリに配置されます。
+
+Chef Client のプロビジョン対象にするには chef.run_list に play-sample を追加しておきます。play-sample を実行する際に git と java が必要になりますが、 metadata.rb に依存関係を記述しているので、自動的に Chef がgit と java も実行対象にしてくれます。
+
+```
+    chef.run_list = [
+        "postgresql::server",
+        "postgresql::client",
+        "postgresql::contrib",
+        "database::postgresql",
+        "postgresql_config",
+        "play-sample"
+    ]
+```
+
+Cookbook の java は yum で java のインストールを行います。本記事執筆時点で yum はまだ Java 8 のインストールに対応していないため、インストール対象の JDK バージョンとして 7 を指定します。これで Java 7 の最新バージョンがインストールされます。
+
+```
+    chef.json = {
+      :postgresql => {
+        :password => 'postgres'
+      },
+      :java => {
+        :jdk_version => '7'
+      }
+    }
+```
+
+仮想マシンはすでに起動されているため、再度プロビジョンのみ行います。
+
+```
+$ vagrant provision
+```
+
+プロビジョンが完了したら、一度、ゲスト OS にログインし、IP アドレスを確認してください。
+
+```
+$ vagrant ssh
+$ ip a show
+```
+
+ゲスト OS に対して 9000 ポートでアクセスし、Web アプリケーションが表示できれば完了です。
+
+http://(IPアドレス):9000
+
+# おわにり
+
+本記事では、Vagrant と Chef を使って以下を行いました。
+
+- 仮想マシンの起動
+- ソフトウェアのインストール（PostgreSQL、git、Java など）
+- Web アプリケーションのビルドと起動
+
+一番最初にホスト側の設定（Vagrant と Chef のインストール）を行う必要がありますが、一度行ってしまうとゲスト OS の環境構築は自動できることがお分かりいただけたと思います。
+
+今回はローカル PC 上で動作確認いただくため、VirtualBox を利用しました。次回はクラウドサービスで最も人気のある AWS 上で利用する方法について紹介します。
+
 
