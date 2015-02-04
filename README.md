@@ -1,6 +1,6 @@
 # Vagrant と Chef による仮想環境の自動構築（VirtualBox編）
 
-AWS のようなクラウドサービスが一般に浸透したことにより、仮想環境を前提とした開発が一般的になってきました。必要になったときに必要な構成のリソースにアクセスできるクラウドの強みを活かすため、オンデマンドで仮想環境を構築し直す機会が以前よりも増えてきています。このような状況では、仮想環境をより効率的に構築する必要があります。本記事のシリーズズでは効率的な仮想環境構築の手段の一つとして、Vagrant と Chef というツールを使い、環境構築を自動化する方法を紹介します。
+AWS のようなクラウドサービスが一般に浸透したことにより、仮想環境を前提とした開発が一般的になってきました。必要になったときに必要な構成のリソースにアクセスできるクラウドの強みを活かすため、オンデマンドで仮想環境を構築し直す機会が以前よりも増えてきています。このような状況では、仮想環境をより効率的に構築する必要があります。本記事のシリーズでは効率的な仮想環境構築の手段の一つとして、Vagrant と Chef というツールを使い、環境構築を自動化する方法を紹介します。
 
 # 1. はじめに
 
@@ -26,8 +26,6 @@ AWS のようなクラウドサービスが一般に浸透したことにより�
 
 ## Vagrant と Chef の連携による仮想環境構築の流れ
 
-※説明と画像に食い違いがあリます。後で最新に置き換えます。
-
 Vagrant と Chef の両者を連携させて仮想環境を構築する手順を紹介します。
 
 ![Vagrant と Chef による環境構築のイメージ](./img/vagrant-chef.png)
@@ -40,11 +38,9 @@ Vagrant と Chef の両者を連携させて仮想環境を構築する手順を
 
 本記事では、以下の構成の仮想環境を構築し、さらにデータベース中のデータを一覧表示する簡単な Web アプリケーションが起動するまでの作業を自動化します。
 
-TODO: バージョンを明記する。
-
-- 仮想マシン: VirtualBox
-- OS: CentOS
-- DB: PostgreSQL
+- 仮想マシン: VirtualBox 4.3.20
+- OS: CentOS 7.0
+- DB: PostgreSQL 9.2
 - アプリケーションサーバ: Netty (Play Framework に付属）
 - プログラミング言語: Java 8
 
@@ -62,7 +58,7 @@ http://www.oracle.com/technetwork/server-storage/virtualbox/overview/index.html
 
 http://www.vagrantup.com/downloads
 
-（注意）本記事執筆時点での最新バージョンは 1.7.2 ですが、本記事では動作確認ができたバージョンをここでは使います。
+（注意）本記事執筆時点での最新バージョンは 1.7.2 ですが、1.7 系を利用した場合、Vagrant プラグインの動作がまだ不安定なため、本記事では動作が安定した 1.6系 の安定バージョンを使います。
 
 インストールしたら以下のコマンドで Vagarant が実行できることを確認してください。
 
@@ -78,7 +74,7 @@ Chef-DK という Chef を利用する際に必要なツールをひとまとめ
 https://downloads.chef.io/chef-dk/
 
 （注意）
-- 本記事執筆時点での最新バージョンは 0.3.6 ですが、動作確認がとれたバージョンを使用しています。
+- 本記事執筆時点での最新バージョンは 0.3.6 ですが、Vagrantプラグインの動作が安定しないため、安定動作が確認できたバージョンを使用しています。
 - ホスト側では Chef は実行されませんが、ゲスト OS に Chef で環境設定するために必要なツール群が Chef-DK でインストールされます。
 - Chef-DK にバンドルされた Ruby の利用が推奨されています。以下のコマンドで Chef-DK の Ruby を使うように指定して下さい。
 
@@ -165,8 +161,6 @@ $ curl localhost:9000
 （データベースの内容を一覧化する HTML が出力）
 ```
 
-TODO：ゲスト OS にブラウザでのぞけるなら、そっちの方が良い。やれるか試してみる。
-
 以上で環境構築が完了し、アプリケーションが立ち上がるところまで自動化できていることが確認できました。一番最初に環境構築を行うホスト側の設定に一苦労しますが、手順が一度確率していれば、簡単に環境構築できることがお分かりいただけたと思います。
 
 動作が確認できたら、以下のコマンドで一旦作成した仮想マシンを破棄してください。
@@ -177,7 +171,7 @@ $ vagarnt destroy
 
 # Vagrant と Chef の実践
 
-ここからは前の節で環境構築し、動作を確認したアプリケーションについて実際に構築する手順を紹介します。なお、Vagarnt / Chef / Vagrant プラグインといったツールはひと通りホスト側にインストールされているという前提で手順を説明します。まだインストールされていない場合は、一度、前の節に戻って、ホスト側の環境設定を行って下さい。
+ここからは前の節で環境構築し、動作を確認したアプリケーションについて実際に構築する手順を紹介します。なお、Vagarnt、Chef、Vagrant プラグインといったツールはひと通りホスト側にインストールされているという前提で手順を説明します。まだインストールされていない場合は、一度、前の節に戻って、ホスト側の環境設定を行って下さい。
 
 # Vagrantfile の作成
 
@@ -234,9 +228,10 @@ $ vagrant ssh
 ```
 
 両プラグインを利用する設定を Vagrantfile に追記します。以下の設定ファイルでは以下を指示しています。
-- ゲストOSに最新のChefをインストールする
-- Chef-zero のリポジトリとしてカレントディレクトリを設定する。
-- プロビジョン（各種設定を行うツール）としてChef-clientを設定する。この時点では実行するクックブックは空のまま。
+- ゲスト OS に最新の Chef をインストールする
+- Chef Zero Server のリポジトリとしてカレントディレクトリを設定する。
+- プロビジョン（各種設定を行うツール）として Chef Client を設定する。
+- Cookbook は何も実行しない。
 
 ```
 Vagrant.configure(2) do |config|
@@ -251,7 +246,7 @@ Vagrant.configure(2) do |config|
 end
 ```
 
-ここで Chef-Clientの設定ファイルとして"chef_custom_config"を指定しています。カレントディレクトリに以下のようなファイルを作成します。これはSSH関係の警告を出さないようにするための対処です。
+ここで Chef-Client の設定ファイルとして "chef_custom_config" を指定しています。カレントディレクトリに以下のようなファイルを作成します。これは SSH 関係の警告を出さないようにするための対処です。
 
 ```
 % more chef_custom_config
@@ -265,7 +260,7 @@ Chef::Config.ssl_verify_mode = :verify_peer
 % vagrant up
 ```
 
-プラグインのインストールと設定ファイルの記述が正しく行われていれば、Chef Zero Serverも起動し、ゲストにChefのインストールが行われます。今回はクックブックを指定なかったため、Chefのrun listが空である旨が記載されています。
+プラグインのインストールと設定ファイルの記述が正しく行われていれば、Chef Zero Server も起動し、ゲストに Chef のインストールが行われます。今回はクックブックを指定なかったため、Chef の run list が空である旨が記載されています。
 
 ```
 % vagrant up
@@ -277,9 +272,9 @@ Starting Chef Zero at http://192.168.179.4:4000
 ==> default: [2015-01-24T20:08:40-05:00] INFO: Chef Run complete in 0.046189483 seconds
 ```
 
-# Cookbookを使った PostgreSQL のインストール
+# Cookbook を使った PostgreSQL のインストール
 
-ここからようやく本題であるCookbookの作成にとりかかります。今回は以下の作業を自動化します。
+ここからようやく本題である Cookbook の作成にとりかかります。今回は以下の作業を自動化します。
 
 - PostgreSQLの server、client、contrib パッケージのインストール
 - postgres ユーザのパスワード設定
@@ -287,17 +282,17 @@ Starting Chef Zero at http://192.168.179.4:4000
 
 ## コミュニティの Cookbook の利用
 
-Cookbookは全て自分自分で作成する必要はなく、すでにコミュニティの有志によって作成されたものを再利用することができます。Cookbookの共有サイトである以下のURLにアクセスし、PostgreSQL をインストールできるCookbookを探してみましょう。
+Cookbook は全て自分自分で作成する必要はなく、コミュニティの有志によって作成されたものを再利用することができます。Cookbook の共有サイトである以下の URL にアクセスし、PostgreSQL をインストールできる Cookbook を探してみましょう。
 
 https://supermarket.chef.io/
 
-postgres というCookbookがよく使われているようです。数十万件ダウンロードされ、最近もメンテナンスされているようですので、こちらを利用しましょう。
+PostgreSQL をインストールできる Cookbook である postgres を見つけました。数十万件ダウンロードされ、最近もメンテナンスされているようですので、こちらを利用しましょう。
 
 https://supermarket.chef.io/cookbooks/postgresql
 
 ## Berkshelf による Cookbook の依存関係解決
 
-Cookbook を利用する場合、注意する必要があるのが、Cookbook 間の依存関係です。これはライブラリと同じで、ある Cookbook が別の Cookbook に依存しているために目的の Cookbook を利用するために芋づる式に依存先の Cookbook を集めてくる必要があるのです。
+Cookbook を利用する場合、注意する必要があるのが、Cookbook 間の依存関係です。これは一般的なソフトウェアのビルドと共通する問題です。ある Cookbook が別の Cookbook に依存している場合、目的の Cookbook を利用するために依存先の Cookbook を全て集める必要があります。さらに依存先の Cookbook に依存先の Coobook がある場合、芋づる式に必要な Cookbook が増えてしまいます。
 
 この依存関係の問題を解決するのが Berkshelf です。Berkshelf の設定ファイルである Berksfile に必要な Cookbook を記載しておけば、Berkshelf が必要な Cookbook を自動的に集めてきてくれます。
 
@@ -351,15 +346,15 @@ postgres=#
 
 ##データベース構築 Cookbook の作成
 
-次に PostgreSQL データベース sampledb を作成します。ここでもコミュニティのクックブック dabatase を利用して、DBの設定を行います。
+次に PostgreSQL データベース sampledb を作成します。ここでもコミュニティのクックブック dabatase を利用して、DB の設定を行います。
 
 https://supermarket.chef.io/cookbooks/database
 
-ただし、 database はDBの設定を行うためのライブラリに相当する Cookbook で、実際の設定作業は自分のレシピとして実装する必要があります。Chef の慣習ではコミュニティの Cookbook と自作の Cookbook を分けて配置することが一般的です。
+ただし、 database は DB の設定を行うためのライブラリに相当する Cookbook で、実際の設定作業は自分のレシピとして実装する必要があります。Chef の慣習ではコミュニティの Cookbook と自作の Cookbook を分けて配置することが一般的です。
 
 それでカレントディレクトリ配下に site-cookbooks というディレクトリを作成し、PostgreSQL の設定を行う Cookbook として postgresql_config を作成します。
 - metadata.rb が Cookbook の情報を記載する箇所です。Cookbookの依存関係なども記載できます。
-- recipes ディレクトリはレシピの配置場所です。default.rb はデフォルトで実行されるレシピです。database に定義されている postgresql_database タスクを利用して実装しています。ここでは localhost に sample_db というデータベースを作成し、 postgres ユーザからアクセスできるようにしています。
+- recipes ディレクトリはレシピの配置場所です。default.rb はデフォルトで実行されるレシピです。database に定義されている postgresql_database タスクを利用して実装しています。ここでは localhost に sampledb というデータベースを作成し、 postgres ユーザからアクセスできるようにしています。
 
 ```
 % more site-cookbooks/postgresql_config/metadata.rb
@@ -428,7 +423,7 @@ cookbook 'postgresql'
   end
 ```
 
-再度プロビジョンを行った後、SSH接続して、PostgreSQL 上に sampledb データベースが作成されていることを確認してください。
+再度プロビジョンを行った後、SSH 接続して、PostgreSQL 上に sampledb データベースが作成されていることを確認してください。
 
 ```
 % vagrant provision
